@@ -17,112 +17,56 @@
         body { 
             background: linear-gradient(120deg, #f3fac4 0%, #cdfda1 100%);
             font-family: 'Do Hyeon', sans-serif; 
-            min-height: 100vh; 
-            padding: 15px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            min-height: 100vh; padding: 15px 10px;
+            display: flex; flex-direction: column; align-items: center;
         }
         .meal-card { 
-            width: 100%;
-            max-width: 450px; 
-            border-radius: 25px; 
-            border: none;
+            width: 100%; max-width: 450px; border-radius: 25px; border: none;
             background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
-            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 20px;
         }
         .school-header { margin-bottom: 20px; text-align: center; }
         .school-name { font-size: 1.5rem; color: #333; margin-bottom: 5px; }
         
         .date-section { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #fff;
-            padding: 10px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #cdfda1;
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #fff; padding: 10px; border-radius: 15px;
+            margin-bottom: 20px; border: 2px solid #cdfda1;
         }
         .date-display-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
+            display: flex; align-items: center; justify-content: center; flex: 1;
         }
         .date-picker-input {
-            border: none; 
-            font-family: 'Do Hyeon', sans-serif; 
-            font-size: 1.1rem; 
-            text-align: center; 
-            width: 125px; /* 요일 자리를 위해 너비 살짝 조절 */
-            color: #444;
-            outline: none;
-            background: transparent;
+            border: none; font-family: 'Do Hyeon', sans-serif; font-size: 1.1rem; 
+            text-align: center; width: 135px; color: #444; outline: none; background: transparent;
         }
-        /* 요일 스타일: 날짜 옆에 작고 연하게 */
         #day-display {
-            font-size: 0.9rem;
-            color: #888;
-            font-family: sans-serif; /* 요일은 깔끔한 기본 서체 */
-            margin-left: -5px;
+            font-size: 1.1rem; color: var(--point-color); margin-left: 2px; min-width: 35px;
         }
         .nav-btn { 
-            background-color: var(--point-color); 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            padding: 5px 10px; 
-            font-size: 0.85rem;
-            transition: 0.2s;
-            white-space: nowrap;
+            background-color: var(--point-color); color: white; border: none; 
+            border-radius: 10px; padding: 5px 12px; font-size: 0.85rem; transition: 0.2s;
         }
-        .nav-btn:active { transform: scale(0.95); }
-
         .meal-section {
-            background: #fff;
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 6px solid var(--point-color);
+            background: #fff; border-radius: 20px; padding: 15px;
+            margin-bottom: 15px; border-left: 6px solid var(--point-color);
         }
         .meal-type { 
-            font-size: 1.1rem; 
-            color: #555; 
-            margin-bottom: 10px; 
-            display: flex; 
-            justify-content: space-between;
-            align-items: center;
+            font-size: 1.1rem; color: #555; margin-bottom: 10px; 
+            display: flex; justify-content: space-between; align-items: center;
         }
         .kcal-badge {
-            font-size: 0.8rem;
-            background: #ffecdf;
-            color: #ff8e53;
-            padding: 3px 10px;
-            border-radius: 15px;
+            font-size: 0.8rem; background: #ffecdf; color: #ff8e53;
+            padding: 3px 10px; border-radius: 15px;
         }
-        .menu-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 8px; 
-        }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .food-item { 
-            background: #fffdf5; 
-            border: 1px solid #fff3cd; 
-            border-radius: 12px;
-            padding: 12px 5px; 
-            font-size: 1rem; 
-            color: #444; 
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            background: #fffdf5; border: 1px solid #fff3cd; border-radius: 12px;
+            padding: 12px 5px; font-size: 1rem; color: #444; text-align: center;
+            cursor: pointer; transition: 0.2s;
         }
-        .no-meal {
-            padding: 30px;
-            text-align: center;
-            color: #999;
-            font-size: 1.2rem;
-        }
+        .food-item:active { background-color: #ffecdf; transform: scale(0.98); }
+        .no-meal { padding: 30px; text-align: center; color: #999; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -149,6 +93,7 @@
         const currentAtptCode = "M10";
         const currentSchulCode = "8000531";
 
+        const allergyMap = { 1: "난류", 2: "우유", 3: "메밀", 4: "땅콩", 5: "대두", 6: "밀", 7: "고등어", 8: "게", 9: "새우", 10: "돼지고기", 11: "복숭아", 12: "토마토", 13: "아황산류", 14: "호두", 15: "닭고기", 16: "쇠고기", 17: "오징어", 18: "조개류", 19: "잣" };
         const week = ['일', '월', '화', '수', '목', '금', '토'];
 
         function init() {
@@ -165,11 +110,11 @@
             const container = document.getElementById('meal-container');
             const dayDisplay = document.getElementById('day-display');
 
-            // 요일 업데이트 (짧게 표시)
+            // 요일 표시
             const d = new Date(dateInput);
             dayDisplay.innerText = `(${week[d.getDay()]})`;
 
-            container.innerHTML = "<div class='no-meal'>급식을 가져오고 있어요... 🔍</div>";
+            container.innerHTML = "<div class='no-meal'>🔍 정보를 가져오고 있어요...</div>";
             
             try {
                 const res = await fetch(`https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${currentAtptCode}&SD_SCHUL_CODE=${currentSchulCode}&MLSV_YMD=${dateVal}`);
@@ -191,18 +136,27 @@
 
                         const menuData = row.DDISH_NM.split("<br/>");
                         menuData.forEach(item => {
+                            // 알레르기 번호 추출 및 이름 정제
+                            const allMatch = item.match(/\(([\d.]+)\)$/); 
+                            const allergyNums = allMatch ? allMatch[1] : "";
                             const cleanName = item.replace(/\(([\d.]+)\)$/, "").replace(/\*/g, "").trim();
-                            html += `<div class="food-item">${cleanName}</div>`;
+                            
+                            // 알레르기 한글 변환
+                            const allergyInfo = allergyNums 
+                                ? allergyNums.split('.').map(n => allergyMap[n.trim()]).filter(v => v).join(", ") 
+                                : "없음";
+
+                            html += `<div class="food-item" onclick="alert('📢 [${cleanName}]\\n알레르기 정보: ${allergyInfo}')">${cleanName}</div>`;
                         });
 
                         html += `</div></div>`;
                     });
                     container.innerHTML = html;
                 } else {
-                    container.innerHTML = "<div class='no-meal'>오늘은 급식이 없어요 🏖️</div>";
+                    container.innerHTML = "<div class='no-meal'>🏖️ 오늘은 급식이 없어요</div>";
                 }
             } catch (err) {
-                container.innerHTML = "<div class='no-meal'>정보를 불러오지 못했습니다 ㅠ</div>";
+                container.innerHTML = "<div class='no-meal'>⚠️ 로드 실패 (연결 확인 요망)</div>";
             }
         }
 
