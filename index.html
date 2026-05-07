@@ -10,9 +10,7 @@
     
     <style>
         :root {
-            --bg-color: #f8f9fa;
             --point-color: #ff8e53;
-            --card-bg: #ffffff;
         }
         body { 
             background: linear-gradient(120deg, #f3fac4 0%, #cdfda1 100%);
@@ -24,61 +22,78 @@
             width: 100%; max-width: 450px; border-radius: 25px; border: none;
             background-color: rgba(255, 255, 255, 0.95);
             box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 20px;
+            position: relative;
         }
         .school-header { margin-bottom: 20px; text-align: center; }
-        .school-name { font-size: 1.5rem; color: #333; margin-bottom: 5px; }
+        .school-name { font-size: 1.5rem; color: #333; }
         
+        /* 날짜 영역 수정: 요일이 절대 안 밀리도록 설정 */
         .date-section { 
             display: flex; justify-content: space-between; align-items: center; 
             background: #fff; padding: 10px; border-radius: 15px;
             margin-bottom: 20px; border: 2px solid #cdfda1;
         }
-        .date-display-wrapper {
-            display: flex; align-items: center; justify-content: center; flex: 1;
+        .date-wrapper {
+            display: flex; align-items: center; gap: 5px;
         }
         .date-picker-input {
             border: none; font-family: 'Do Hyeon', sans-serif; font-size: 1.1rem; 
-            text-align: center; width: 135px; color: #444; outline: none; background: transparent;
+            width: 130px; text-align: center; outline: none; background: transparent;
         }
         #day-display {
-            font-size: 1.1rem; color: var(--point-color); margin-left: 2px; min-width: 35px;
+            font-size: 1.1rem; color: var(--point-color); font-weight: bold;
         }
         .nav-btn { 
             background-color: var(--point-color); color: white; border: none; 
-            border-radius: 10px; padding: 5px 12px; font-size: 0.85rem; transition: 0.2s;
+            border-radius: 10px; padding: 5px 12px; font-size: 0.85rem;
         }
+
         .meal-section {
             background: #fff; border-radius: 20px; padding: 15px;
             margin-bottom: 15px; border-left: 6px solid var(--point-color);
         }
-        .meal-type { 
-            font-size: 1.1rem; color: #555; margin-bottom: 10px; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .kcal-badge {
-            font-size: 0.8rem; background: #ffecdf; color: #ff8e53;
-            padding: 3px 10px; border-radius: 15px;
-        }
+        .meal-type { font-size: 1.1rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .kcal-badge { font-size: 0.8rem; background: #ffecdf; color: #ff8e53; padding: 3px 10px; border-radius: 15px; }
+
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        
+        /* 메뉴 아이템 및 말풍선 위치 기준 */
         .food-item { 
+            position: relative;
             background: #fffdf5; border: 1px solid #fff3cd; border-radius: 12px;
             padding: 12px 5px; font-size: 1rem; color: #444; text-align: center;
             cursor: pointer; transition: 0.2s;
         }
-        .food-item:active { background-color: #ffecdf; transform: scale(0.98); }
-        .no-meal { padding: 30px; text-align: center; color: #999; font-size: 1.2rem; }
+        .food-item:active { background-color: #ffecdf; }
+
+        /* 말풍선 스타일 */
+        .allergy-bubble {
+            position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+            background: #333; color: #fff; padding: 8px 12px; border-radius: 8px;
+            font-size: 0.8rem; font-family: sans-serif; width: max-content;
+            max-width: 160px; z-index: 100; pointer-events: none;
+            display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .allergy-bubble::after {
+            content: ''; position: absolute; top: 100%; left: 50%;
+            margin-left: -5px; border-width: 5px; border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .show-bubble .allergy-bubble { display: block; }
+
+        .no-meal { padding: 30px; text-align: center; color: #999; }
     </style>
 </head>
-<body>
+<body onclick="hideAllBubbles()">
 
-    <div class="meal-card">
+    <div class="meal-card" onclick="event.stopPropagation()">
         <div class="school-header">
             <h1 class="school-name">🏫 중앙탑고등학교</h1>
         </div>
 
         <div class="date-section">
             <button class="nav-btn" onclick="changeDate(-1)">◀ 이전</button>
-            <div class="date-display-wrapper">
+            <div class="date-wrapper">
                 <input type="date" id="date-input" class="date-picker-input" onchange="updateMeal()">
                 <span id="day-display"></span>
             </div>
@@ -104,59 +119,59 @@
             updateMeal();
         }
 
+        function hideAllBubbles() {
+            document.querySelectorAll('.food-item').forEach(el => el.classList.remove('show-bubble'));
+        }
+
+        function toggleBubble(event, element) {
+            event.stopPropagation();
+            const isShowing = element.classList.contains('show-bubble');
+            hideAllBubbles();
+            if (!isShowing) element.classList.add('show-bubble');
+        }
+
         async function updateMeal() {
             const dateInput = document.getElementById('date-input').value;
-            const dateVal = dateInput.replace(/-/g, "");
             const container = document.getElementById('meal-container');
             const dayDisplay = document.getElementById('day-display');
 
-            // 요일 표시
             const d = new Date(dateInput);
             dayDisplay.innerText = `(${week[d.getDay()]})`;
 
-            container.innerHTML = "<div class='no-meal'>🔍 정보를 가져오고 있어요...</div>";
+            container.innerHTML = "<div class='no-meal'>🔍 로딩 중...</div>";
             
             try {
-                const res = await fetch(`https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${currentAtptCode}&SD_SCHUL_CODE=${currentSchulCode}&MLSV_YMD=${dateVal}`);
+                const res = await fetch(`https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${currentAtptCode}&SD_SCHUL_CODE=${currentSchulCode}&MLSV_YMD=${dateInput.replace(/-/g, "")}`);
                 const data = await res.json();
 
                 if (data.mealServiceDietInfo) {
-                    const rows = data.mealServiceDietInfo[1].row;
                     let html = "";
-
-                    rows.forEach(row => {
+                    data.mealServiceDietInfo[1].row.forEach(row => {
                         html += `
                             <div class="meal-section">
-                                <div class="meal-type">
-                                    <span>🍱 ${row.MMEAL_SC_NM}</span>
-                                    <span class="kcal-badge">${row.CAL_INFO}</span>
-                                </div>
+                                <div class="meal-type"><span>🍱 ${row.MMEAL_SC_NM}</span><span class="kcal-badge">${row.CAL_INFO}</span></div>
                                 <div class="menu-grid">
                         `;
-
-                        const menuData = row.DDISH_NM.split("<br/>");
-                        menuData.forEach(item => {
-                            // 알레르기 번호 추출 및 이름 정제
-                            const allMatch = item.match(/\(([\d.]+)\)$/); 
+                        row.DDISH_NM.split("<br/>").forEach(item => {
+                            const allMatch = item.match(/\(([\d.]+)\)$/);
                             const allergyNums = allMatch ? allMatch[1] : "";
                             const cleanName = item.replace(/\(([\d.]+)\)$/, "").replace(/\*/g, "").trim();
-                            
-                            // 알레르기 한글 변환
-                            const allergyInfo = allergyNums 
-                                ? allergyNums.split('.').map(n => allergyMap[n.trim()]).filter(v => v).join(", ") 
-                                : "없음";
+                            const allergyInfo = allergyNums ? allergyNums.split('.').map(n => allergyMap[n.trim()]).filter(v => v).join(", ") : "알레르기 정보 없음";
 
-                            html += `<div class="food-item" onclick="alert('📢 [${cleanName}]\\n알레르기 정보: ${allergyInfo}')">${cleanName}</div>`;
+                            html += `
+                                <div class="food-item" onclick="toggleBubble(event, this)">
+                                    ${cleanName}
+                                    <div class="allergy-bubble">⚠️ ${allergyInfo}</div>
+                                </div>`;
                         });
-
                         html += `</div></div>`;
                     });
                     container.innerHTML = html;
                 } else {
-                    container.innerHTML = "<div class='no-meal'>🏖️ 오늘은 급식이 없어요</div>";
+                    container.innerHTML = "<div class='no-meal'>🏖️ 급식이 없습니다.</div>";
                 }
             } catch (err) {
-                container.innerHTML = "<div class='no-meal'>⚠️ 로드 실패 (연결 확인 요망)</div>";
+                container.innerHTML = "<div class='no-meal'>⚠️ 데이터를 가져올 수 없습니다.</div>";
             }
         }
 
