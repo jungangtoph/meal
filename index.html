@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오늘의 급식 🍱</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍱</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --point-color: #ff8e53;
+            --card-bg: #ffffff;
+        }
+        body { 
+            background: linear-gradient(120deg, #f3fac4 0%, #cdfda1 100%);
+            font-family: 'Do Hyeon', sans-serif; 
+            min-height: 100vh; 
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .meal-card { 
+            width: 100%;
+            max-width: 450px; 
+            border-radius: 25px; 
+            border: none;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            padding: 20px;
+        }
+        .school-header { margin-bottom: 20px; text-align: center; }
+        .school-name { font-size: 1.5rem; color: #333; margin-bottom: 5px; }
+        
+        /* 날짜 선택 영역 */
+        .date-section { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #fff;
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #cdfda1;
+        }
+        .date-picker-input {
+            border: none; 
+            font-family: 'Do Hyeon', sans-serif; 
+            font-size: 1.2rem; 
+            text-align: center; 
+            width: 140px; 
+            color: #444;
+            outline: none;
+        }
+        .nav-btn { 
+            background-color: var(--point-color); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            padding: 5px 12px; 
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .nav-btn:active { transform: scale(0.95); }
+
+        /* 급식 섹션 */
+        .meal-section {
+            background: #fff;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 6px solid var(--point-color);
+        }
+        .meal-type { 
+            font-size: 1.1rem; 
+            color: #555; 
+            margin-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+        }
+        .kcal-badge {
+            font-size: 0.8rem;
+            background: #ffecdf;
+            color: #ff8e53;
+            padding: 3px 10px;
+            border-radius: 15px;
+        }
+        .menu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px; 
+        }
+        .food-item { 
+            background: #fffdf5; 
+            border: 1px solid #fff3cd; 
+            border-radius: 12px;
+            padding: 12px 5px; 
+            font-size: 1rem; 
+            color: #444; 
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .no-meal {
+            padding: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="meal-card">
+        <div class="school-header">
+            <h1 class="school-name">🏫 중앙탑고등학교</h1>
+        </div>
+
+        <!-- 날짜 선택 -->
+        <div class="date-section">
+            <button class="nav-btn" onclick="changeDate(-1)">◀ 이전</button>
+            <input type="date" id="date-input" class="date-picker-input" onchange="updateMeal()">
+            <button class="nav-btn" onclick="changeDate(1)">다음 ▶</button>
+        </div>
+
+        <!-- 급식 표시 영역 -->
+        <div id="meal-container">
+            <!-- 자바스크립트로 데이터가 삽입됨 -->
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = "94dd3b88730f49469b6245d9c213b99c"; 
+        // 중앙탑고등학교 정보 고정
+        const currentAtptCode = "M10";
+        const currentSchulCode = "8000531";
+
+        function init() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localDate = new Date(now.getTime() - offset);
+            document.getElementById('date-input').value = localDate.toISOString().split('T')[0];
+            updateMeal();
+        }
+
+        async function updateMeal() {
+            const dateVal = document.getElementById('date-input').value.replace(/-/g, "");
+            const container = document.getElementById('meal-container');
+            container.innerHTML = "<div class='no-meal'>급식을 가져오고 있어요... 🔍</div>";
+            
+            try {
+                const res = await fetch(`https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${currentAtptCode}&SD_SCHUL_CODE=${currentSchulCode}&MLSV_YMD=${dateVal}`);
+                const data = await res.json();
+
+                if (data.mealServiceDietInfo) {
+                    const rows = data.mealServiceDietInfo[1].row;
+                    let html = "";
+
+                    rows.forEach(row => {
+                        html += `
+                            <div class="meal-section">
+                                <div class="meal-type">
+                                    <span>🍱 ${row.MMEAL_SC_NM}</span>
+                                    <span class="kcal-badge">${row.CAL_INFO}</span>
+                                </div>
+                                <div class="menu-grid">
+                        `;
+
+                        const menuData = row.DDISH_NM.split("<br/>");
+                        menuData.forEach(item => {
+                            const cleanName = item.replace(/\(([\d.]+)\)$/, "").replace(/\*/g, "").trim();
+                            html += `<div class="food-item">${cleanName}</div>`;
+                        });
+
+                        html += `</div></div>`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = "<div class='no-meal'>오늘은 급식이 없어요 🏖️</div>";
+                }
+            } catch (err) {
+                container.innerHTML = "<div class='no-meal'>정보를 불러오지 못했습니다 ㅠ</div>";
+            }
+        }
+
+        function changeDate(days) {
+            let d = new Date(document.getElementById('date-input').value);
+            d.setDate(d.getDate() + days);
+            document.getElementById('date-input').value = d.toISOString().split('T')[0];
+            updateMeal();
+        }
+
+        init();
+    </script>
+</body>
+</html>
