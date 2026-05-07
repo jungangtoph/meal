@@ -35,7 +35,6 @@
         .school-header { margin-bottom: 20px; text-align: center; }
         .school-name { font-size: 1.5rem; color: #333; margin-bottom: 5px; }
         
-        /* 날짜 선택 영역 */
         .date-section { 
             display: flex; 
             justify-content: space-between; 
@@ -46,27 +45,41 @@
             margin-bottom: 20px;
             border: 2px solid #cdfda1;
         }
+        .date-display-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
         .date-picker-input {
             border: none; 
             font-family: 'Do Hyeon', sans-serif; 
-            font-size: 1.2rem; 
+            font-size: 1.1rem; 
             text-align: center; 
-            width: 140px; 
+            width: 125px; /* 요일 자리를 위해 너비 살짝 조절 */
             color: #444;
             outline: none;
+            background: transparent;
+        }
+        /* 요일 스타일: 날짜 옆에 작고 연하게 */
+        #day-display {
+            font-size: 0.9rem;
+            color: #888;
+            font-family: sans-serif; /* 요일은 깔끔한 기본 서체 */
+            margin-left: -5px;
         }
         .nav-btn { 
             background-color: var(--point-color); 
             color: white; 
             border: none; 
             border-radius: 10px; 
-            padding: 5px 12px; 
-            font-size: 0.9rem;
+            padding: 5px 10px; 
+            font-size: 0.85rem;
             transition: 0.2s;
+            white-space: nowrap;
         }
         .nav-btn:active { transform: scale(0.95); }
 
-        /* 급식 섹션 */
         .meal-section {
             background: #fff;
             border-radius: 20px;
@@ -119,24 +132,24 @@
             <h1 class="school-name">🏫 중앙탑고등학교</h1>
         </div>
 
-        <!-- 날짜 선택 -->
         <div class="date-section">
             <button class="nav-btn" onclick="changeDate(-1)">◀ 이전</button>
-            <input type="date" id="date-input" class="date-picker-input" onchange="updateMeal()">
+            <div class="date-display-wrapper">
+                <input type="date" id="date-input" class="date-picker-input" onchange="updateMeal()">
+                <span id="day-display"></span>
+            </div>
             <button class="nav-btn" onclick="changeDate(1)">다음 ▶</button>
         </div>
 
-        <!-- 급식 표시 영역 -->
-        <div id="meal-container">
-            <!-- 자바스크립트로 데이터가 삽입됨 -->
-        </div>
+        <div id="meal-container"></div>
     </div>
 
     <script>
         const API_KEY = "94dd3b88730f49469b6245d9c213b99c"; 
-        // 중앙탑고등학교 정보 고정
         const currentAtptCode = "M10";
         const currentSchulCode = "8000531";
+
+        const week = ['일', '월', '화', '수', '목', '금', '토'];
 
         function init() {
             const now = new Date();
@@ -147,8 +160,15 @@
         }
 
         async function updateMeal() {
-            const dateVal = document.getElementById('date-input').value.replace(/-/g, "");
+            const dateInput = document.getElementById('date-input').value;
+            const dateVal = dateInput.replace(/-/g, "");
             const container = document.getElementById('meal-container');
+            const dayDisplay = document.getElementById('day-display');
+
+            // 요일 업데이트 (짧게 표시)
+            const d = new Date(dateInput);
+            dayDisplay.innerText = `(${week[d.getDay()]})`;
+
             container.innerHTML = "<div class='no-meal'>급식을 가져오고 있어요... 🔍</div>";
             
             try {
