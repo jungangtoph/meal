@@ -3,43 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>중앙탑고등학교 급식 🍱</title>
+    <title>중앙탑고 오늘의 급식 🍱</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍱</text></svg>">
     
-    <!-- 주아(Jua)체 추가 -->
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
         :root {
-            --point-color: #ff9a76;
-            --sub-color: #ffeadb;
+            --point-color: #4a90e2; /* 로고와 어울리는 푸른색 */
+            --sub-color: #e3f2fd;
+            --bg-sky: #add8e6; /* 전체 배경 하늘색 */
         }
         body { 
-            background: linear-gradient(135deg, #fff5e1 0%, #ffdde1 100%);
-            font-family: 'Jua', sans-serif; /* 글씨체 변경 */
+            background: linear-gradient(135deg, var(--bg-sky) 0%, #e0f7fa 100%);
+            font-family: 'Jua', sans-serif;
             min-height: 100vh; padding: 20px 10px;
             display: flex; flex-direction: column; align-items: center;
         }
         .meal-card { 
             width: 100%; max-width: 450px; border-radius: 30px; border: none;
-            background-color: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 10px 25px rgba(255, 154, 118, 0.2); padding: 25px;
+            background-color: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); padding: 25px;
             position: relative;
         }
-        .school-header { margin-bottom: 25px; text-align: center; }
-        .school-name { font-size: 1.8rem; color: #555; }
+        
+        /* 로고 영역 스타일 */
+        .school-logo-container { 
+            margin-bottom: 25px; 
+            text-align: center; 
+        }
+        .school-logo {
+            width: 80%; /* 로고 크기 조절 */
+            max-width: 250px;
+            height: auto;
+        }
         
         .date-section { 
             display: flex; justify-content: space-between; align-items: center; 
             background: #fff; padding: 12px; border-radius: 20px;
-            margin-bottom: 20px; border: 3px dashed var(--point-color);
+            margin-bottom: 20px; border: 3px solid var(--sub-color);
         }
-        .date-wrapper { display: flex; align-items: center; gap: 3px; }
+        .date-wrapper { display: flex; align-items: center; gap: 5px; }
         .date-picker-input {
             border: none; font-family: 'Jua', sans-serif; font-size: 1.2rem; 
             width: 140px; text-align: center; outline: none; background: transparent;
-            color: #444;
+            color: #333;
         }
         #day-display {
             font-size: 1.2rem; color: var(--point-color);
@@ -47,31 +56,32 @@
         .nav-btn { 
             background-color: var(--point-color); color: white; border: none; 
             border-radius: 15px; padding: 6px 14px; font-size: 1rem;
-            box-shadow: 0 4px 0px #e67e5c; transition: 0.1s;
+            transition: 0.2s;
         }
-        .nav-btn:active { transform: translateY(3px); box-shadow: none; }
+        .nav-btn:active { transform: scale(0.95); opacity: 0.8; }
 
         .meal-section {
             background: #fff; border-radius: 20px; padding: 18px;
-            margin-bottom: 15px; border: 2px solid var(--sub-color);
+            margin-bottom: 15px; border-left: 6px solid var(--point-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
         }
-        .meal-type { font-size: 1.2rem; margin-bottom: 12px; display: flex; justify-content: space-between; color: #666; }
+        .meal-type { font-size: 1.2rem; margin-bottom: 12px; display: flex; justify-content: space-between; color: #444; }
         .kcal-badge { font-size: 0.9rem; background: var(--sub-color); color: var(--point-color); padding: 4px 12px; border-radius: 15px; }
 
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         
         .food-item { 
             position: relative;
-            background: #fff; border: 2px solid #fdf2e9; border-radius: 15px;
+            background: #fdfdfd; border: 1.5px solid #eee; border-radius: 15px;
             padding: 14px 5px; font-size: 1.1rem; color: #555; text-align: center;
             cursor: pointer; transition: 0.2s;
         }
-        .food-item:hover { background-color: #fffaf0; }
-        .food-item:active { background-color: var(--sub-color); transform: scale(0.95); }
+        .food-item:active { background-color: var(--sub-color); transform: scale(0.96); }
 
-         .allergy-bubble {
+        /* 말풍선 스타일 */
+        .allergy-bubble {
             position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
-            background: #5d5d5d; color: #fff; padding: 10px 15px; border-radius: 15px;
+            background: #444; color: #fff; padding: 10px 15px; border-radius: 15px;
             font-size: 0.9rem; font-family: 'Jua', sans-serif; width: max-content;
             max-width: 180px; z-index: 100; pointer-events: none;
             display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -80,7 +90,7 @@
         .allergy-bubble::after {
             content: ''; position: absolute; top: 100%; left: 50%;
             margin-left: -8px; border-width: 8px; border-style: solid;
-            border-color: #5d5d5d transparent transparent transparent;
+            border-color: #444 transparent transparent transparent;
         }
         .show-bubble .allergy-bubble { display: block; animation: pop 0.3s ease-out; }
 
@@ -89,14 +99,14 @@
             100% { transform: translateX(-50%) scale(1); opacity: 1; }
         }
 
-        .no-meal { padding: 40px; text-align: center; color: #bbb; font-size: 1.3rem; }
+        .no-meal { padding: 40px; text-align: center; color: #999; font-size: 1.3rem; }
     </style>
 </head>
 <body onclick="hideAllBubbles()">
 
     <div class="meal-card" onclick="event.stopPropagation()">
-        <div class="school-header">
-            <h1 class="school-name">🍱 중앙탑고 급식 🍱</h1>
+        <div class="school-logo-container">
+            <img src="https://school.cbe.go.kr/hosts/jungangtap-h/M01/logo.png" alt="중앙탑고등학교 로고" class="school-logo">
         </div>
 
         <div class="date-section">
@@ -146,7 +156,7 @@
             const d = new Date(dateInput);
             dayDisplay.innerText = `(${week[d.getDay()]})`;
 
-            container.innerHTML = "<div class='no-meal'>맛있는 급식 찾는 중... 🍳</div>";
+            container.innerHTML = "<div class='no-meal'>🔍 정보를 불러오고 있어요...</div>";
             
             try {
                 const res = await fetch(`https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${API_KEY}&Type=json&ATPT_OFCDC_SC_CODE=${currentAtptCode}&SD_SCHUL_CODE=${currentSchulCode}&MLSV_YMD=${dateInput.replace(/-/g, "")}`);
@@ -157,7 +167,7 @@
                     data.mealServiceDietInfo[1].row.forEach(row => {
                         html += `
                             <div class="meal-section">
-                                <div class="meal-type"><span>✨ ${row.MMEAL_SC_NM}</span><span class="kcal-badge">${row.CAL_INFO}</span></div>
+                                <div class="meal-type"><span>🍽️ ${row.MMEAL_SC_NM}</span><span class="kcal-badge">${row.CAL_INFO}</span></div>
                                 <div class="menu-grid">
                         `;
                         row.DDISH_NM.split("<br/>").forEach(item => {
@@ -176,10 +186,10 @@
                     });
                     container.innerHTML = html;
                 } else {
-                    container.innerHTML = "<div class='no-meal'>오늘은 급식이 없어요 🏖️</div>";
+                    container.innerHTML = "<div class='no-meal'>🏖️ 오늘은 급식이 없어요</div>";
                 }
             } catch (err) {
-                container.innerHTML = "<div class='no-meal'>정보를 불러올 수 없어요 ㅠ</div>";
+                container.innerHTML = "<div class='no-meal'>⚠️ 로드 실패 (연결 상태 확인)</div>";
             }
         }
 
